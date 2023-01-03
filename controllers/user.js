@@ -4,3 +4,7 @@ exports.home = (req, res) => {
         Success: true,
     });
 };
+
+exports.register = (req, res) => {
+    console.log(req.body);
+}

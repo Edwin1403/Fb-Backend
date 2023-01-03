@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const { ObjectId } = mongoose.Schema
+
 const userSchema = require({
     first_name: {
         type: String,
@@ -81,9 +83,59 @@ const userSchema = require({
     search: [
         {
             user: {
-                type: mongoose.Schema.ObjectId,
+                type: ObjectId,
                 ref: "User"
             }
         }
-    ]
-});
+    ],
+    details: {
+        bio: {
+            type: String,
+        },
+        otherName: {
+            type: String,
+        },
+        job: {
+            type: String,
+        },
+        workplace: {
+            type: String,
+        },
+        highSchool: {
+            type: String,
+        },
+        collage: {
+            type: String,
+        },
+        currentCity: {
+            type: String,
+        },
+        homeTown: {
+            type: String,
+        },
+        relationShip: {
+            type: String,
+            enum: ['Single', 'In a relationship', 'Married', 'Divorced']
+        },
+        instagram: {
+            type: String,
+        },
+        savedPosts: [
+            {
+                post: {
+                    type: ObjectId,
+                    ref: "Post"
+                },
+                savedAt: {
+                    type: Date,
+                    default: new Date(),
+                }
+            }
+        ]
+    }
+},
+    {
+        timestamps: true,
+    });
+
+    module.exports= mongoose.model('User', userSchema);
