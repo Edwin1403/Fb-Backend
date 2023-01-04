@@ -6,12 +6,13 @@ const connectDB = require("./config/db");
 const cors = require('cors');
 const { readdirSync } = require('fs');
 const router = require('./routes/user');
+const app = express();
 // const dotenv = require('dotenv');
 // dotenv.config();
 
 connectDB();
 
-const app = express();
+app.use(express.json());
 app.use(cors());
 app.use(cors())
 app.use(router)
