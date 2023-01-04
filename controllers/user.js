@@ -1,5 +1,5 @@
 const User = require('../Model/User');
-const { validateEmail, validateLength, validateUsername } = require('../validators/validation');
+const { validateEmail, validateLength } = require('../validators/validation');
 
 const bcrypt = require('bcrypt');
 const { generateToken } = require('../token/token');
@@ -56,14 +56,14 @@ exports.register = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 12)
 
-        let tempUserName = first_name + last_name;
-        let newUsername = await validateUsername(tempUserName);
+        // let tempUserName = first_name + last_name;
+        // let newUsername = await validateUsername(tempUserName);
 
         const user = new User(
             {
                 first_name,
                 last_name,
-                username: newUsername,
+                username,
                 email,
                 password: hashedPassword,
                 bYear,
@@ -74,7 +74,7 @@ exports.register = async (req, res) => {
         ).save();
         
         const emailVerificationToken = generateToken(
-            { id: user._id.toString() },
+            { id: user._id},
             "30m"
         );
         console.log(emailVerificationToken);
