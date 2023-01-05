@@ -1,3 +1,5 @@
+const User = require("../Model/User");
+
 exports.validateEmail = (email) => {
     return String(email)
         .toLowerCase()

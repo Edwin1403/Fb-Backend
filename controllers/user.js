@@ -1,8 +1,9 @@
 const User = require('../Model/User');
-const { validateEmail, validateLength } = require('../validators/validation');
+const { validateEmail, validateLength, validateUsername } = require('../validators/validation');
 
 const bcrypt = require('bcrypt');
 const { generateToken } = require('../token/token');
+const { sendVerificationEmail } = require('../token/mailer');
 
 exports.home = (req, res) => {
     res.status(200).json({
@@ -56,14 +57,14 @@ exports.register = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 12)
 
-        // let tempUserName = first_name + last_name;
-        // let newUsername = await validateUsername(tempUserName);
+        let tempUserName = first_name + last_name;
+        let newUsername = await validateUsername(tempUserName);
 
-        const user = new User(
+        const user = await new User(
             {
                 first_name,
                 last_name,
-                username,
+                username: newUsername,
                 email,
                 password: hashedPassword,
                 bYear,
@@ -72,17 +73,26 @@ exports.register = async (req, res) => {
                 gender,
             }
         ).save();
-        
+
         const emailVerificationToken = generateToken(
-            { id: user._id},
+            { id: user._id.toString() },
             "30m"
         );
-        console.log(emailVerificationToken);
+        // console.log(emailVerificationToken);
 
-        res.status(200).json({
-            Message: "User created successfully",
-            Success: true,
-        });
+        const url = `${process.env.BASE_URL}/activate/${emailVerificationToken}`;
+        sendVerificationEmail(user.email, user.first_name, url);
+        const token = generateToken({ id: user._id.toString() }, "7d");
+        res.send({
+            id: user._id,
+            username: user.username,
+            picture: user.picture,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            token: token,
+            verified: user.verified,
+            message: "Register Successfully ! Please activate your email"
+        })
 
     } catch (error) {
         res.status(500).json({
@@ -91,3 +101,8 @@ exports.register = async (req, res) => {
         })
     }
 };
+
+exports.activateAccount = async (req, res) => {
+ const {token} = req.body;
+ console.log(token);
+}
