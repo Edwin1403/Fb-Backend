@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 const { generateToken } = require('../token/token');
 const { sendVerificationEmail } = require('../token/mailer');
 
+const jwt = require('jsonwebtoken')
+
 exports.home = (req, res) => {
     res.status(200).json({
         Message: "Home page is Welcomes You..!",
@@ -82,6 +84,7 @@ exports.register = async (req, res) => {
 
         const url = `${process.env.BASE_URL}/activate/${emailVerificationToken}`;
         sendVerificationEmail(user.email, user.first_name, url);
+
         const token = generateToken({ id: user._id.toString() }, "7d");
         res.send({
             id: user._id,
@@ -103,6 +106,47 @@ exports.register = async (req, res) => {
 };
 
 exports.activateAccount = async (req, res) => {
- const {token} = req.body;
- console.log(token);
+    const { token } = req.body;
+    const user = jwt.verify(token, process.env.TOKEN_SECRET);
+    const check = await User.findOne(user._id)
+    if (check.verified == true) {
+        return res.status(401).json({
+            message: "Your account is already activated",
+        })
+    } else {
+        await User.findByIdAndUpdate(user.id, { verified: true })
+        return res
+            .status(200)
+            .json({ message: "Your account has been activated successfully" })
+    }
 }
+
+exports.login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({
+                message: "The email address is invalid",
+            });
+        }
+
+        const check = await bcrypt.compare(password, user.password);
+        if (!check) {
+            return res.status(400).json({
+                message: "Invalid credentials! Please try again!",
+            });
+        }
+        const token = generateToken({ id: user._id.toString() }, "7d");
+        res.send({
+            token: token,
+            message: "Login Successfully.!",
+            Success: true
+        })
+
+    } catch (error) {
+        res
+            .status(500)
+            .Message(error.message);
+    }
+};
