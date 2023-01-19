@@ -36,7 +36,7 @@ const userSchema = mongoose.Schema(
         picture: {
             type: String,
             default:
-                "https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg"
+                "https://res.cloudinary.com/dd02oock8/image/upload/v1673934570/pngwing.com_t7nrtk.png"
         },
         cover: {
             type: String,

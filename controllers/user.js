@@ -108,7 +108,7 @@ exports.register = async (req, res) => {
 exports.activateAccount = async (req, res) => {
     const { token } = req.body;
     const user = jwt.verify(token, process.env.TOKEN_SECRET);
-    const check = await User.findOne(user._id)
+    const check = await User.findById(user.id)
     if (check.verified == true) {
         return res.status(401).json({
             message: "Your account is already activated",
@@ -138,10 +138,20 @@ exports.login = async (req, res) => {
             });
         }
         const token = generateToken({ id: user._id.toString() }, "7d");
+        const first_name = user.first_name;
+        const last_name = user.last_name;
+        const username = user.username;
+        const picture = user.picture;
+        const verified = user.verified;
         res.send({
-            token: token,
-            message: "Login Successfully.!",
-            Success: true
+            Token: token,
+            Message: "Login Successfully.!",
+            Success: true,
+            First_name: first_name,
+            Last_name: last_name,
+            Username: username,
+            Picture: picture,
+            Verified: verified,
         })
 
     } catch (error) {
@@ -150,3 +160,9 @@ exports.login = async (req, res) => {
             .Message(error.message);
     }
 };
+
+exports.auth = (req, res) => {
+console.log(req.user);
+
+res.json("Welcome from auth")
+}
